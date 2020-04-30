@@ -39,8 +39,6 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
-import javax.xml.soap.Text;
-
 class GameScreen extends ScreenAdapter {
 
 	/*
@@ -63,7 +61,6 @@ class GameScreen extends ScreenAdapter {
 	private Texture background;
 	private Texture topTower;
 	private Texture bottomTower;
-	private Texture flappeeTexture;
 
 	/*
 	Flappee Bee Object -- Object that deals with Flappee Bee's operations
@@ -79,7 +76,7 @@ class GameScreen extends ScreenAdapter {
 	/*
 	User Info
 	 */
-	int score = 0;
+	private int score = 0;
 
 	/*
 	Bitmap and GlyphLayout
@@ -90,7 +87,7 @@ class GameScreen extends ScreenAdapter {
 	/*
 	Flags
 	 */
-	boolean debugMode = false;
+	private boolean debugMode = false;
 
 	/*
 	Input: The width and height of the screen
@@ -113,10 +110,10 @@ class GameScreen extends ScreenAdapter {
 		background = new Texture(Gdx.files.internal("Space.png"));
 		topTower = new Texture(Gdx.files.internal("T11.png"));
 		bottomTower = new Texture(Gdx.files.internal("T22.png"));
-		flappeeTexture = new Texture(Gdx.files.internal("Skulls.png"));
+		Texture flappedTexture = new Texture(Gdx.files.internal("Skulls.png"));
 
 		//Flappee's initial position
-		flappee = new Flappee(flappeeTexture);
+		flappee = new Flappee(flappedTexture);
 		flappee.setPosition(WORLD_WIDTH/4, WORLD_HEIGHT/2);
 
 		//Camera and View display
@@ -174,10 +171,12 @@ class GameScreen extends ScreenAdapter {
 		if(checkForCollision()){ restart();}
 	}
 
-	private void setDebugMode() {
-		if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_1) && !debugMode) {debugMode = true;}
-		else if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_1) && debugMode) {debugMode = false;}
-	}
+	/*
+	Input: Void
+	Output: Void
+	Purpose: Turns on and off the debug mode
+	*/
+	private void setDebugMode() { if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_1)){debugMode = !debugMode;} }
 
 	/*
 	Input: Void
@@ -233,9 +232,15 @@ class GameScreen extends ScreenAdapter {
 	/*
 	Input: Delta
 	Output: Void
-	Purpose: Goes through each flower in the array and updates the poposition	*/
+	Purpose: Goes through each flower in the array and updates the position
+	*/
 	private void updateFlowers(float delta){ for(Flower flower : flowers){ flower.update(delta); } }
 
+	/*
+	Input: Void
+	Output: Void
+	Purpose: Claims a flower if flappe passes over it and adds it to the score
+	*/
 	private void updateScore(){
 		Flower flower = flowers.first();
 		if(flower.getX() < flappee.getX() && !flower.isPointClaimed()) {
@@ -254,12 +259,23 @@ class GameScreen extends ScreenAdapter {
 		flappee.setPosition(flappee.getX(), MathUtils.clamp(flappee.getY(), flappee.getRadius(), WORLD_HEIGHT - flappee.getRadius()) );
 	}
 
-	void restart(){
+
+	/*
+	Input: Void
+	Output: Void
+	Purpose: Sets flappee at start of screen, clears all flowers from scree nad resets score to zero
+	*/
+	private void restart(){
 		flappee.setPosition(WORLD_WIDTH/4,WORLD_HEIGHT/2);
 		flowers.clear();
 		score = 0;
 	}
 
+	/*
+	Input: Void
+	Output: Void
+	Purpose: Checks if flappe hit any of the flowers
+	*/
 	private boolean checkForCollision(){
 		for (Flower flower : flowers){
 			if(flower.isFlappeeColliding(flappee)){return true;}
@@ -267,6 +283,11 @@ class GameScreen extends ScreenAdapter {
 		return false;
 	}
 
+	/*
+	Input: Void
+	Output: Void
+	Purpose: Main function that draws everything
+	*/
 	private void draw() {
 		//Viewport/Camera projection
 		batch.setProjectionMatrix(camera.projection);
@@ -280,12 +301,22 @@ class GameScreen extends ScreenAdapter {
 		batch.end();
 	}
 
+	/*
+	Input: Void
+	Output: Void
+	Purpose: Goes through the flower array and draws all of them
+	*/
 	private void drawFlower(){
 		for(Flower flower : flowers){
 			flower.draw(batch);
 		}
 	}
 
+	/*
+	Input: Void
+	Output: Void
+	Purpose: Draws the text that shows the score
+	*/
 	private void drawScore(){
 		String scoreAsString = Integer.toString(score);
 		glyphLayout.setText(bitmapFont, scoreAsString);
@@ -324,10 +355,6 @@ class Flappee {
 	private static final float DIVE_ACCELERATION = 0.30f;
 	private float ySpeed = 0;
 
-	/*
-	Texture
-	 */
-	private final TextureRegion [][] flappeeTextures;
 	private static final float FRAME_DURATION = 0.25f;
 	private float animationTime = 0;
 	private final Animation animation;
@@ -366,10 +393,12 @@ class Flappee {
 	Purpose: Constructed initializes a copy of the Flappee Bee
 	*/
 	Flappee(Texture flappeeTexture) {
-		this.flappeeTextures = new TextureRegion(flappeeTexture).split(TILE_WIDTH,TILE_HEIGHT);
+		/*
+	Texture
+	 */
+		TextureRegion[][] flappedTextures = new TextureRegion(flappeeTexture).split(TILE_WIDTH, TILE_HEIGHT);
 
-		animation = new Animation(FRAME_DURATION, flappeeTextures[0][0],
-				flappeeTextures[0][1],flappeeTextures[0][2],flappeeTextures[0][3]);
+		animation = new Animation(FRAME_DURATION, flappedTextures[0][0], flappedTextures[0][1], flappedTextures[0][2], flappedTextures[0][3]);
 		animation.setPlayMode(Animation.PlayMode.LOOP);
 
 		collisionCircle = new Circle(x,y, COLLISION_RADIUS);
@@ -417,6 +446,11 @@ class Flappee {
 		collisionCircle.setY(y);
 	}
 
+	/*
+	Input: SpriteBatch
+	Output: Void
+	Purpose: Draws textures
+	*/
 	void draw(SpriteBatch batch){
 		TextureRegion flappeeTexture = (TextureRegion) animation.getKeyFrame(animationTime);
 		batch.draw(flappeeTexture, collisionCircle.x-COLLISION_RADIUS, collisionCircle.y-COLLISION_RADIUS);
@@ -453,7 +487,6 @@ class Flower{
 
 	//Position
 	private float x = 0;
-	private float y = 0;
 
 	/*
 	Movment
@@ -480,12 +513,12 @@ class Flower{
 		this.ceilingTexture = ceilingTexture;
 		this.floorTexture = floorTexture;
 
-		this.y = MathUtils.random(HEIGHT_OFFSET);
-		this.floorCollisionRectangle = new Rectangle(x,y,COLLISION_RECTANGLE_WIDTH, COLLISION_RECTANGLE_HEIGHT);
-		this.floorCollisionCircle = new Circle((x + COLLISION_RECTANGLE_WIDTH)/2,y + COLLISION_RECTANGLE_HEIGHT ,COLLISION_CIRCLE_RADIUS);
+		float y = MathUtils.random(HEIGHT_OFFSET);
+		this.floorCollisionRectangle = new Rectangle(x, y,COLLISION_RECTANGLE_WIDTH, COLLISION_RECTANGLE_HEIGHT);
+		this.floorCollisionCircle = new Circle((x + COLLISION_RECTANGLE_WIDTH)/2, y + COLLISION_RECTANGLE_HEIGHT ,COLLISION_CIRCLE_RADIUS);
 
-		this.ceilingCollisionRectangle = new Rectangle(x,y + COLLISION_RECTANGLE_HEIGHT + DISTANCE_BETWEEN_FLOOR_AND_CEILING,COLLISION_RECTANGLE_WIDTH, COLLISION_RECTANGLE_HEIGHT);
-		this.ceilingCollisionCircle = new Circle((x + COLLISION_RECTANGLE_WIDTH)/2,y + COLLISION_RECTANGLE_HEIGHT + DISTANCE_BETWEEN_FLOOR_AND_CEILING,COLLISION_CIRCLE_RADIUS);
+		this.ceilingCollisionRectangle = new Rectangle(x, y + COLLISION_RECTANGLE_HEIGHT + DISTANCE_BETWEEN_FLOOR_AND_CEILING,COLLISION_RECTANGLE_WIDTH, COLLISION_RECTANGLE_HEIGHT);
+		this.ceilingCollisionCircle = new Circle((x + COLLISION_RECTANGLE_WIDTH)/2, y + COLLISION_RECTANGLE_HEIGHT + DISTANCE_BETWEEN_FLOOR_AND_CEILING,COLLISION_CIRCLE_RADIUS);
 	}
 
 	/*
@@ -513,17 +546,32 @@ class Flower{
 		updateCollisionRectangle();
 	}
 
+	/*
+	Input: Void
+	Output: Void
+	Purpose: Updates the position of the circles of the flower
+	*/
 	private void updateCollisionCircle(){
 		floorCollisionCircle.setX(x + floorCollisionRectangle.width/2);
 		ceilingCollisionCircle.setX(x + floorCollisionRectangle.width/2);
 	}
 
+	/*
+	Input: Void
+	Output: Void
+	Purpose: Updates the position of the rectangles of the flower
+	*/
 	private void updateCollisionRectangle(){
 		floorCollisionRectangle.setX(x);
 		ceilingCollisionRectangle.setX(x);
 	}
 
-	public boolean isFlappeeColliding(Flappee flapee) {
+	/*
+	Input: Flapee circle
+	Output: Returs flag that tells us if we intercepts between any of the flower parts and flappe
+	Purpose: Checks if flappe hits any of the flower parts
+	*/
+	boolean isFlappeeColliding(Flappee flapee) {
 		Circle flappeeCollisionCircle = flapee.getCollisionCircle();
 		return Intersector.overlaps(flappeeCollisionCircle, floorCollisionCircle) ||
 				Intersector.overlaps(flappeeCollisionCircle, ceilingCollisionCircle) ||
@@ -531,30 +579,64 @@ class Flower{
 				Intersector.overlaps(flappeeCollisionCircle, floorCollisionRectangle);
 	}
 
+	/*
+	Input: Delta for timing,
+	Output: Void
+	Purpose: Calculates the new position of the flower
+	*/
 	void update(float delta){ setPosition(x-(MAX_SPEED_PER_SECOND * delta)); }
 
+	/*
+	Input: Void
+	Output: Flag that tells us if the point has been passed
+	Purpose: Returns a flag that tells us if the point has been passed
+	*/
 	boolean isPointClaimed(){return pointClaimed;}
 
+	/*
+	Input: Void
+	Output: Void
+	Purpose: Set the flag true if we passed the point to stop counting it afterwards
+	*/
 	void markPointClaimed(){ pointClaimed = true;}
 
+	/*
+	Input: SpriteBatch
+	Output: Void
+	Purpose: Central drawing function
+	*/
 	void draw(SpriteBatch batch){
 		drawFloor(batch);
 		drawCeiling(batch);
 	}
 
-	void drawFloor(SpriteBatch batch){
-		float textureX = floorCollisionCircle.x - floorTexture.getWidth()/2;
+	/*
+	Input: SpriteBatch
+	Output: Void
+	Purpose: Draws the top textures
+	*/
+	private void drawFloor(SpriteBatch batch){
+		float textureX = floorCollisionCircle.x - (float) floorTexture.getWidth()/2;
 		float textureY = floorCollisionRectangle.getY() - COLLISION_CIRCLE_RADIUS;
 		batch.draw(floorTexture, textureX, textureY);
 	}
 
-	void drawCeiling(SpriteBatch batch){
-		float textureX = ceilingCollisionCircle.x - ceilingTexture.getWidth()/2;
+	/*
+	Input: SpriteBatch
+	Output: Void
+	Purpose: Draws the floor textures
+	*/
+	private void drawCeiling(SpriteBatch batch){
+		float textureX = ceilingCollisionCircle.x - (float) ceilingTexture.getWidth()/2;
 		float textureY = ceilingCollisionRectangle.getY() - COLLISION_CIRCLE_RADIUS;
 		batch.draw(ceilingTexture, textureX, textureY);
 	}
 
-
+	/*
+	Input: ShapeRenderer
+	Output: Void
+	Purpose: Draws the wire frame
+	*/
 	void drawDebug(ShapeRenderer shapeRenderer) {
 		shapeRenderer.circle(floorCollisionCircle.x, floorCollisionCircle.y, floorCollisionCircle.radius);
 		shapeRenderer.rect(floorCollisionRectangle.x, floorCollisionRectangle.y, floorCollisionRectangle.width, floorCollisionRectangle.height);
@@ -564,27 +646,39 @@ class Flower{
 }
 
 class StartScreen extends ScreenAdapter{
+	//Screen dimensions
 	private static final float WORLD_WIDTH = 480;
 	private static final float WORLD_HEIGHT = 640;
 
+	//Stage that the buttons are on
 	private Stage stage;
 
+	//Textures
 	private Texture backgroundTexture;
 	private Texture playUpTexture;
 	private Texture playDownTexture;
 	private Texture titleTexture;
 
+	//Game set up
 	private final Game game;
-	public StartScreen(Game game) { this.game = game; }
+	StartScreen(Game game) { this.game = game; }
 
+	/*
+	Input: Void
+	Output: Void
+	Purpose: Sets up the screen and buttons
+	*/
 	public void show(){
+		//Set up the stage and give it the input processing
 		stage = new Stage(new FitViewport(WORLD_WIDTH,WORLD_HEIGHT));
 		Gdx.input.setInputProcessor(stage);
 
+		//Set up the background image and add it to the stage
 		backgroundTexture = new Texture(Gdx.files.internal("Space.png"));
 		Image background = new Image(backgroundTexture);
 		stage.addActor(background);
 
+		//Set up the Button and add it to the stage
 		playDownTexture = new Texture(Gdx.files.internal("PlayDown.png"));
 		playUpTexture = new Texture(Gdx.files.internal("PlayUp.png"));
 		ImageButton play = new ImageButton(new TextureRegionDrawable(new TextureRegion(playUpTexture)),
@@ -592,30 +686,46 @@ class StartScreen extends ScreenAdapter{
 		play.setPosition(WORLD_WIDTH/2, WORLD_HEIGHT/4, Align.center);
 		stage.addActor(play);
 
+		//Give the button click ability that starts the game
 		play.addListener(new ActorGestureListener() {
 			@Override
-			public void tap(InputEvent event, float x, float y, int count,
-							int button) {
+			public void tap(InputEvent event, float x, float y, int count, int button) {
 				super.tap(event, x, y, count, button);
 				game.setScreen(new GameScreen());
 				dispose();
 			}
 		});
 
-
+		//Give the button click ability that starts the game
 		titleTexture = new Texture(Gdx.files.internal("Title.png"));
 		Image title = new Image(titleTexture);
 		title.setPosition(WORLD_WIDTH/2, 3*WORLD_HEIGHT/4,Align.center);
 		stage.addActor(title);
 	}
 
+	/*
+	Input: Dimensions
+	Output: Void
+	Purpose: Resize the screen depending on the the window size
+	*/
 	public void resize(int width, int height){ stage.getViewport().update(width,height,true);}
 
+	/*
+	Input: Dimensions
+	Output: Void
+	Purpose: Resize the screen depending on the the window size
+	*/
 	public void render(float delta){
+		//Makes it run on delta time
 		stage.act(delta);
 		stage.draw();
 	}
 
+	/*
+	Input: Void
+	Output: Void
+	Purpose: Gets rid of textures and stages
+	*/
 	@Override
 	public void dispose() {
 		stage.dispose();
