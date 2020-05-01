@@ -14,7 +14,9 @@ public class RaumGame extends Game {
 
 	private final AssetManager assetManager = new AssetManager();
 
-
+	/*
+	Returns the asset manager to store and retrieve textures
+	 */
 	AssetManager getAssetManager() { return assetManager; }
 
 	@Override
