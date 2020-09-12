@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.4" tiledversion="1.4.1" orientation="orthogonal" renderorder="right-down" width="40" height="30" tilewidth="16" tileheight="16" infinite="0" nextlayerid="4" nextobjectid="7">
+ <tileset firstgid="1" source="RaumTIleSet.tsx"/>
+ <tileset firstgid="19" source="Skull.tsx"/>
+ <layer id="1" name="Tile Layer 1" width="40" height="30">
+  <data encoding="base64" compression="zlib">
+   eJztkusOwyAIhdm9bnVdff+HHSaaEoK2GpP+OV9yYhAEFIkAAAAAAAAAoI8L63l2ExUc6312ExUW1q/zbHz7K+tG42cgc99Zj44aE+uVVje0O6KZttl+kj035viyfFqXod0RBdpmuyY7NJxvfX8rfs8u7e/ViX45VzmDUt8undGycsh5Sh2pU8sbCvXjGmflDem4mqyaes/Ka/lljNzLfzX/q1Jc7R6ynr5DruENn/Tr99J9yf9/JE73ad0p2n+2Kwf+
+  </data>
+ </layer>
+ <objectgroup id="3" name="Skulls">
+  <object id="2" gid="19" x="304.667" y="385.333" width="16" height="16"/>
+  <object id="3" gid="19" x="240" y="368" width="16" height="16"/>
+  <object id="4" gid="19" x="175.333" y="400" width="16" height="16"/>
+  <object id="5" gid="19" x="78.6667" y="336" width="16" height="16"/>
+  <object id="6" gid="19" x="463.333" y="288" width="16" height="16"/>
+ </objectgroup>
+</map>

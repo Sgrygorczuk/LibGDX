@@ -1,25 +1,23 @@
 package com.packt.raumgame;
 
-
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 
 public class Skull {
-    public static final int WIDTH = 16;
-    public static final int HEIGHT = 16;
-    private final Rectangle collision;
-    private final Texture texture;
-    private final float x;
-    private final float y;
 
-    public Skull(Texture texture, float x, float y) {
+    private float width = 16;
+    private float height = 16;
+
+    private Rectangle hitBox;
+    private Texture texture;
+
+    public Skull(Texture texture, float x, float y){
         this.texture = texture;
-        this.x = x;
-        this.y = y;
-        this.collision = new Rectangle(x,y, WIDTH,HEIGHT);
+        hitBox = new Rectangle(x, y, width, height);
     }
-    public void draw(Batch batch) {
-        batch.draw(texture, x, y);
-    }
+
+    public Rectangle getHitBox(){ return hitBox; }
+
+    public void draw(SpriteBatch batch){ batch.draw(texture, hitBox.getX(), hitBox.getY()); }
 }
