@@ -12,20 +12,38 @@ import java.util.Iterator;
 
 public class CollisionCell {
 
+    //Grabs a cell from the tile map
     private TiledMapTileLayer.Cell cell;
+    //Gets that tiles position
     private float cellX;
     private float cellY;
 
+    //Size of the cells
     private final float CELL_SIZE = 16;
 
+    /*
+    Input: Void
+    Output: Void
+    Purpose: Constructor used for putting this class in the GameScreen
+    */
     public CollisionCell(){}
 
+    /*
+    Input: The individual cell
+    Output: Void
+    Purpose: Central function from which everything is done from
+    */
     public CollisionCell(TiledMapTileLayer.Cell cell, int cellX, int cellY){
         this.cell = cell;
         this.cellX = cellX;
         this.cellY = cellY;
     }
 
+    /*
+    Input: Void
+    Output: Void
+    Purpose: Tells us if there is something in this cell or not
+    */
     public boolean isEmpty(){
         return cell == null;
     }
@@ -106,6 +124,11 @@ public class CollisionCell {
         return cells;
     }
 
+    /*
+    Input: Void
+    Output: Void
+    Purpose:
+    */
     public void handleCollision(Raum raum, TiledMap tiledMap){
         Array<CollisionCell> coveredCells = whichCellsAreCovered(raum.getX(),raum.getY(), tiledMap);
         coveredCells = filterOutNonTiledCells(coveredCells);
